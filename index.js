@@ -8,9 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-
-
 const uri = "mongodb+srv://BackendPractice:L0Aqe2ZQm0bxLRJh@cluster0.052zdja.mongodb.net/?appName=Cluster0";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -50,6 +47,38 @@ async function run() {
             const service = await serviceCollection.findOne(query);
             res.send(service);
         });
+
+        app.get('/myServices', async (req, res) => {
+            const { email } = req.query;
+            const query = { email: email };
+            const result = await serviceCollection.find(query).toArray();
+            console.log(result);
+            res.send(result);
+        })
+
+        app.put('/updateService/:id', async (req, res) => {
+            const { id } = req.params;
+
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+
+            const updateService = {
+                $set: data
+            }
+
+            const result = await serviceCollection.updateOne(query, updateService);
+            res.send(result);
+
+
+
+        })
+
+        app.delete('/deleteService/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { _id: new ObjectId(id) };
+            const result = await serviceCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
         await client.db("admin").command({ ping: 1 });
